@@ -1,4 +1,6 @@
-import { WORKOUTX_API_KEY } from '../config';
+// 直接从环境变量读取 API key，避免依赖 src/config.ts（.gitignore 中）
+const WORKOUTX_API_KEY =
+  (import.meta.env.VITE_WORKOUTX_KEY as string | undefined) || 'your-api-key-here';
 
 const WORKOUTX_BASE = 'https://api.workoutxapp.com';
 
