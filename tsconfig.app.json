@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "C:/Users/aaa11/WorkBuddy/2026-07-03-19-08-45/.tmp/tsconfig.app.tsbuildinfo",
+    "tsBuildInfoFile": "./.tmp/tsconfig.app.tsbuildinfo",
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "C:/Users/aaa11/WorkBuddy/2026-07-03-19-08-45/.tmp/tsconfig.node.tsbuildinfo",
+    "tsBuildInfoFile": "./.tmp/tsconfig.node.tsbuildinfo",
     "target": "es2023",
     "lib": ["ES2023"],
     "types": ["node"],

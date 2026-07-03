@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "prebuild": "node -e \"import('node:fs').then(fs=>fs.mkdirSync('.tmp',{recursive:true}))\"",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "node --experimental-strip-types --test _test/planParser.test.mjs",
