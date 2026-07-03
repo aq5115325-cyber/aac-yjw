@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* 自定义深色模式 — 运动场景常用暗色背景 */
+@theme {
+  --color-primary: #6366f1;
+  --color-primary-dark: #4f46e5;
+  --color-accent: #22d3ee;
+  --color-surface: #1e1b4b;
+  --color-surface-light: #312e81;
+  --color-muted: #a5b4fc;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+}
+
+body {
+  @apply bg-gray-950 text-white antialiased;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* 倒计时数字动画 */
+@keyframes pulse-countdown {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-countdown {
+  animation: pulse-countdown 1s ease-in-out infinite;
+}

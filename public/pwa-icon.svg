@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="32" fill="url(#bg)"/>
+  <!-- 哑铃图标 -->
+  <g transform="translate(96,96)" fill="none" stroke="white" stroke-width="7" stroke-linecap="round">
+    <!-- 手柄 -->
+    <rect x="-32" y="-7" width="64" height="14" rx="7"/>
+    <!-- 左铃片 -->
+    <rect x="-52" y="-16" width="16" height="32" rx="4"/>
+    <!-- 右铃片 -->
+    <rect x="36" y="-16" width="16" height="32" rx="4"/>
+  </g>
+</svg>
