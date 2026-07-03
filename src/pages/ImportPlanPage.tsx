@@ -2,7 +2,7 @@
 // 自然语言导入训练计划
 // 详见 ADR-001 / ADR-002
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Wand2, FileText } from 'lucide-react';
 import {
@@ -11,7 +11,7 @@ import {
   type ParseResult,
 } from '../lib/planParser';
 import { EXERCISE_ALIASES } from '../lib/exerciseAliases';
-import { getAllExercises, getExerciseNameZh, isExercisesLoaded } from '../data/exercises';
+import { getAllExercises, getExerciseNameZh, isExercisesLoaded, loadExercises } from '../data/exercises';
 
 const SEED_KEY = 'fitfollow:import-seed';
 
@@ -30,6 +30,18 @@ const SAMPLE_STRENGTH = `组数 3
 export default function ImportPlanPage() {
   const navigate = useNavigate();
   const [text, setText] = useState('');
+  const [dataReady, setDataReady] = useState(isExercisesLoaded());
+
+  // 进入页面时确保动作数据已加载
+  useEffect(() => {
+    if (!dataReady) {
+      loadExercises()
+        .then(() => setDataReady(true))
+        .catch((err) => {
+          console.error('Failed to load exercises:', err);
+        });
+    }
+  }, [dataReady]);
 
   /** 实时把"动作库"转成 parser 需要的字典格式 */
   const dict: ActionDictionary = useMemo(() => {
@@ -70,6 +82,12 @@ export default function ImportPlanPage() {
       <p className="text-sm text-gray-400">
         写一段话描述你的训练，系统会自动识别为可编辑的计划。
       </p>
+
+      {!dataReady && (
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 text-center text-sm text-gray-400">
+          正在加载动作库…
+        </div>
+      )}
 
       {/* 示例 */}
       <div className="flex gap-2">
