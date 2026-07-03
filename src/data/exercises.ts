@@ -21,7 +21,14 @@ export function loadExercises(): Promise<void> {
       const rawData = (module.default ?? module) as Exercise[];
       const byId = new Map<string, Exercise>();
       const list: Exercise[] = [];
-      rawData.forEach((ex) => {
+      rawData.forEach((raw) => {
+        // 过滤掉无效记录（缺 name 或 id），避免后续访问 undefined
+        if (!raw || !raw.id || !raw.name) return;
+        // 补齐 instructions 缺失字段
+        const ex: Exercise = {
+          ...raw,
+          instructions: raw.instructions || { en: '', es: '', it: '', tr: '', ru: '', zh: '' },
+        };
         list.push(ex);
         byId.set(ex.id, ex);
       });
@@ -152,7 +159,8 @@ const COMPOUNDS: [string, string][] = [
 ];
 
 /** 智能翻译英文动作名为中文 */
-function translateNameToZh(name: string): string {
+function translateNameToZh(name: string | undefined | null): string {
+  if (!name) return '';
   const key = name.toLowerCase().trim();
   if (FULL[key]) return FULL[key];
   let n = key.replace(/\s*\((male|female)\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
@@ -171,17 +179,20 @@ function translateNameToZh(name: string): string {
 }
 
 /** 获取动作中文名 */
-export function getExerciseNameZh(exercise: Exercise): string {
-  return translateNameToZh(exercise.name);
+export function getExerciseNameZh(exercise: Exercise | undefined | null): string {
+  if (!exercise) return '未知动作';
+  return translateNameToZh(exercise.name) || exercise.name || '未知动作';
 }
 
 /** 获取中文指导 */
-export function getInstructionZh(exercise: Exercise): string {
-  return exercise.instructions.zh || exercise.instructions.en;
+export function getInstructionZh(exercise: Exercise | undefined | null): string {
+  if (!exercise || !exercise.instructions) return '';
+  return exercise.instructions.zh || exercise.instructions.en || '';
 }
 
 /** 分类中文标签 */
-export function getCategoryLabel(category: string): string {
+export function getCategoryLabel(category: string | undefined | null): string {
+  if (!category) return '未分类';
   const labels: Record<string, string> = {
     'back': '背部', 'cardio': '有氧', 'chest': '胸部',
     'lower arms': '前臂', 'lower legs': '小腿', 'neck': '颈部',
@@ -191,7 +202,8 @@ export function getCategoryLabel(category: string): string {
 }
 
 /** 器械中文标签 */
-export function getEquipmentLabel(equipment: string): string {
+export function getEquipmentLabel(equipment: string | undefined | null): string {
+  if (!equipment) return '';
   const labels: Record<string, string> = {
     'body weight': '自重', 'dumbbell': '哑铃', 'barbell': '杠铃',
     'cable': '缆绳', 'leverage machine': '杠杆器械', 'band': '弹力带',
@@ -205,11 +217,14 @@ export function getEquipmentLabel(equipment: string): string {
 
 /** 搜索动作 */
 export function searchExercises(query: string): Exercise[] {
-  const q = query.toLowerCase();
+  const q = (query || '').toLowerCase();
   const exercises = getAllExercises();
   return exercises.filter((ex) => {
+    if (!ex) return false;
     const nameZh = translateNameToZh(ex.name).toLowerCase();
-    return nameZh.includes(q) || ex.name.toLowerCase().includes(q) ||
-      ex.category.toLowerCase().includes(q) || ex.target.toLowerCase().includes(q);
+    return nameZh.includes(q) ||
+      (ex.name || '').toLowerCase().includes(q) ||
+      (ex.category || '').toLowerCase().includes(q) ||
+      (ex.target || '').toLowerCase().includes(q);
   });
 }

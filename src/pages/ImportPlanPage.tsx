@@ -45,14 +45,15 @@ export default function ImportPlanPage() {
 
   /** 实时把"动作库"转成 parser 需要的字典格式 */
   const dict: ActionDictionary = useMemo(() => {
-    if (!isExercisesLoaded()) return {};
+    if (!dataReady) return {};
     const out: ActionDictionary = {};
     for (const ex of getAllExercises()) {
-      const zh = getExerciseNameZh(ex);
-      out[zh] = { id: ex.id, nameZh: zh };
+      if (!ex || !ex.id) continue;
+      const zh = getExerciseNameZh(ex) || ex.name;
+      if (zh) out[zh] = { id: ex.id, nameZh: zh };
     }
     return out;
-  }, []);
+  }, [dataReady]);
 
   /** 实时预览（用当前 dict + 别名） */
   const preview: ParseResult = useMemo(
