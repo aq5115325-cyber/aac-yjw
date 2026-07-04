@@ -228,7 +228,7 @@ export default function WorkoutPlayer({
       {/* 底部进度条 */}
       <div className="pb-4">
         <ProgressBar
-          current={completedCount + (phase === 'exercising' || phase === 'resting' ? 1 : 0)}
+          current={completedCount}
           total={totalCount}
           label={planName}
           phaseInitialSeconds={phaseInitialSeconds}
