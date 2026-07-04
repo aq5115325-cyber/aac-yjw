@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Dumbbell, Home, History, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -8,6 +8,7 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { path: '/', label: '首页', icon: Home },
@@ -41,7 +42,7 @@ export default function Layout({ children }: LayoutProps) {
             return (
               <button
                 key={item.path}
-                onClick={() => (window.location.href = item.path)}
+                onClick={() => navigate(item.path)}
                 className={clsx(
                   'flex flex-col items-center gap-0.5 px-4 py-1 rounded-xl transition-colors',
                   isActive ? 'text-indigo-400' : 'text-gray-500',
