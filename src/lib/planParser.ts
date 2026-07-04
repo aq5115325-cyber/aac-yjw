@@ -52,11 +52,15 @@ function extractFromLine(line: string): LineExtract | null {
   const repMatch = trimmed.match(/(\d+)\s*个/);
   const setMatch = trimmed.match(/(\d+)\s*组(?!间)/);
   const restMatch = trimmed.match(/休息\s*(\d+)\s*秒/);
+  // 每组 N 个：如 "3 组 每组 12 个" → reps=12
+  const perSetRepMatch = trimmed.match(/每组\s*(\d+)\s*个/);
 
+  // 去掉数字和元信息获取动作名（保留规范化空格，不全部移除）
   const name = trimmed
     .replace(/\d+\s*(秒|分钟|个|组)/g, '')
-    .replace(/每组|休息|组间/g, '')
-    .replace(/\s+/g, '')
+    .replace(/每组\s*\d+\s*个?/g, '')
+    .replace(/休息|组间/g, '')
+    .replace(/\s{2,}/g, ' ')  // 合并多余空格
     .trim();
 
   if (!name) return null;
@@ -65,16 +69,25 @@ function extractFromLine(line: string): LineExtract | null {
   if (secMatch) duration = toInt(secMatch[1]);
   else if (minMatch) duration = toInt(minMatch[1]) * 60;
 
+  const reps = repMatch ? toInt(repMatch[1]) : (perSetRepMatch ? toInt(perSetRepMatch[1]) : undefined);
+
   return {
     name,
     duration,
     restAfter: restMatch ? toInt(restMatch[1]) : undefined,
     sets: setMatch ? toInt(setMatch[1]) : undefined,
-    reps: repMatch ? toInt(repMatch[1]) : undefined,
+    reps,
   };
 }
 
-/** 从字典中匹配动作名（最长前缀优先） */
+/**
+ * 从字典中匹配动作名
+ *
+ * 匹配策略（按优先级降序）：
+ * 1. 别名精确/前缀/包含匹配 — 按别名长度降序（长别名优先，避免"深蹲"误吞"深蹲跳"）
+ * 2. dict 精确匹配
+ * 3. dict 包含匹配 — 按长度比例评分（子串越长、越接近原名，分数越高）
+ */
 function matchExercise(
   name: string,
   dict: ActionDictionary,
@@ -82,8 +95,12 @@ function matchExercise(
 ): { id: string; nameZh: string; originalName: string } | null {
   if (!name) return null;
 
-  // 1. 优先：内置别名 → 标准名
-  for (const [alias, std] of Object.entries(aliases)) {
+  // 1. 别名匹配：按别名长度降序，最长优先
+  //    "深蹲跳"（3字）排在 "深蹲"（2字）前面，优先匹配 jump squat 而非 squat
+  const sortedAliases = Object.entries(aliases).sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  for (const [alias, std] of sortedAliases) {
     if (name === alias || name.startsWith(alias) || name.includes(alias)) {
       if (dict[std]) {
         return { ...dict[std], originalName: std };
@@ -96,12 +113,24 @@ function matchExercise(
     return { ...dict[name], originalName: name };
   }
 
-  // 3. 包含匹配
+  // 3. 字典包含匹配（带评分，选最佳而非第一个）
+  const candidates: { key: string; score: number }[] = [];
   for (const key of Object.keys(dict)) {
-    if (key.includes(name) || name.includes(key)) {
-      return { ...dict[key], originalName: key };
+    if (key === name) continue;
+    // 子串越接近原串长度，得分越高
+    // 例：name="弯举" key="锤式弯举" → score=2/4=0.5；key="弯举" → score=2/2=1
+    if (key.includes(name)) {
+      candidates.push({ key, score: name.length / key.length });
+    } else if (name.includes(key) && key.length > 1) {
+      candidates.push({ key, score: key.length / name.length });
     }
   }
+  if (candidates.length > 0) {
+    candidates.sort((a, b) => b.score - a.score);
+    const best = candidates[0];
+    return { ...dict[best.key], originalName: best.key };
+  }
+
   return null;
 }
 

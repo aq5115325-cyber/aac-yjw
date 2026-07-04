@@ -51,6 +51,11 @@ export default function ImportPlanPage() {
       if (!ex || !ex.id) continue;
       const zh = getExerciseNameZh(ex) || ex.name;
       if (zh) out[zh] = { id: ex.id, nameZh: zh };
+      // 同时加入英文名作为 key，让别名系统（std 为英文名）能命中
+      const enKey = (ex.name || '').toLowerCase().trim();
+      if (enKey && enKey !== zh.toLowerCase()) {
+        out[enKey] = { id: ex.id, nameZh: zh };
+      }
     }
     return out;
   }, [dataReady]);
