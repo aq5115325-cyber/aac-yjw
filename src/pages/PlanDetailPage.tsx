@@ -343,10 +343,10 @@ export default function PlanDetailPage() {
                   <select
                     value={c.value}
                     onChange={(e) => c.set(Number(e.target.value))}
-                    className="bg-transparent text-white font-medium text-center w-full outline-none"
+                    className="appearance-none bg-gray-800 text-white font-medium text-center w-full rounded-lg py-1 outline-none cursor-pointer"
                   >
                     {c.opts.map((n) => (
-                      <option key={n} value={n}>
+                      <option key={n} value={n} className="bg-gray-800 text-white">
                         {n}{'suffix' in c ? c.suffix : ''}
                       </option>
                     ))}
